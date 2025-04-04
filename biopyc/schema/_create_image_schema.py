@@ -36,7 +36,7 @@ def create_image_schema(
         input_images = [
             image
             for image in input_images
-            if not any(excl in image for excl in exclusion_strings)
+            if not any(excl in Path(image).name for excl in exclusion_strings)
         ]
     if len(input_images) == 0:
         raise ValueError("All files contain a string to exclude")
