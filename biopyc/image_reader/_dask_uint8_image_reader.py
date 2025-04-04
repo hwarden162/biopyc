@@ -8,6 +8,7 @@ from skimage.util import img_as_ubyte
 
 from ._abc_image_reader import _ABCImageReader
 
+
 class DaskUInt8ImageReader(_ABCImageReader):
     @delayed
     def _convert_to_ubyte(self, image: ndarray) -> ndarray:
@@ -18,22 +19,27 @@ class DaskUInt8ImageReader(_ABCImageReader):
 
         Returns:
             ndarray: Output ubyte image
-        """        
+        """
         return img_as_ubyte(image)
-    
-    def read_image(self, path) -> Array:
+
+    def read_image(self, path: str) -> Array:
         """Read an image as a dask array
 
         Args:
-            path (_type_): Path to the inpute image
+            path (str): Path to the inpute image
 
         Raises:
+            TypeError: Given file path is not a string
+            FileNotFoundError: Image file not found
             IOError: If dask image can't read the image
 
         Returns:
             Array: The input image as a dask array
-        """        
-        super().read_image(path)
+        """
+        if not isinstance(path, str):
+            raise TypeError("Path should be a string")
+        if not os.path.exists(path):
+            raise FileNotFoundError("Image file not found")
         try:
             image = imread(path)[0, :, :]
         except:
