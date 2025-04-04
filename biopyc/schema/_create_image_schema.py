@@ -45,6 +45,10 @@ def create_image_schema(
     dfs = []
     for image in input_images:
         meta_dict = meta_func(image)
+        meta_dict = {
+            f"Metadata_{key}" if not key.startswith("Metadata_") else key: value
+            for key, value in meta_dict.items()
+        }
         meta_dict["Image_Intensity"] = image
-        dfs.append(DataFrame(meta_dict))
-    return concat(dfs)
+        dfs.append(DataFrame(meta_dict, index=[0]))
+    return concat(dfs).reset_index(drop=True)
