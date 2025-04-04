@@ -8,6 +8,7 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.11"
 dask = "^2025.3.0"
+dask-image = "^2024.5.3"
 
 
 [tool.poetry.group.dev.dependencies]
