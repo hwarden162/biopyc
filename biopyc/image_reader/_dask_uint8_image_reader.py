@@ -42,8 +42,8 @@ class DaskUInt8ImageReader(_ABCImageReader):
             raise FileNotFoundError("Image file not found")
         try:
             image = imread(path)[0, :, :]
-        except:
-            raise IOError("Image could not be read by dask image")
+        except Exception as e:
+            raise IOError(f"Image could not be read by dask image: {e}")
         return from_delayed(
             self._convert_to_ubyte(image), shape=image.shape, dtype=uint8
         )
