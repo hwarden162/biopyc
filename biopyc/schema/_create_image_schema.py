@@ -12,6 +12,7 @@ def create_image_schema(
     recursive: bool = False,
     meta_func: Optional[Callable] = None,
     exclusion_strings: List[str] = [],
+    stain_name: str = "Intensity_Stain",
 ) -> DataFrame:
     if not isinstance(input_folder, str):
         raise TypeError("Input folder should be a string")
@@ -28,6 +29,15 @@ def create_image_schema(
     if len(exclusion_strings) > 0:
         if not all([isinstance(string, str) for string in exclusion_strings]):
             raise TypeError("Every entry of exclusion strings should be a string")
+    if not isinstance(stain_name, str):
+        raise TypeError("Stain name should be a string")
+    if not any(
+        stain_name.startswith(check_str)
+        for check_str in ["Intensity_", "LabelMask_", "BinaryMask_"]
+    ):
+        raise ValueError(
+            "Stain name should start with 'Intensity_', 'LabelMask_' or 'BinaryMask_'"
+        )
     abs_input_pattern = os.path.join(str(Path(input_folder).resolve()), pattern)
     input_images = glob(abs_input_pattern, recursive=recursive)
     if len(input_images) == 0:
@@ -41,7 +51,7 @@ def create_image_schema(
     if len(input_images) == 0:
         raise ValueError("All files contain a string to exclude")
     if meta_func is None:
-        return DataFrame({"Image_Intensity": input_images})
+        return DataFrame({stain_name: input_images})
     dfs = []
     for image in input_images:
         meta_dict = meta_func(image)
@@ -49,6 +59,6 @@ def create_image_schema(
             f"Metadata_{key}" if not key.startswith("Metadata_") else key: value
             for key, value in meta_dict.items()
         }
-        meta_dict["Image_Intensity"] = image
+        meta_dict[stain_name] = image
         dfs.append(DataFrame(meta_dict, index=[0]))
     return concat(dfs).reset_index(drop=True)

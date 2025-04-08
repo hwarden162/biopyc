@@ -28,12 +28,16 @@ def test_create_image_schema_validation():
             create_image_schema(str(empty_dir))
     with raises(ValueError, match="All files contain a string to exclude"):
         create_image_schema("./tests/imgs", exclusion_strings=[".tif"])
+    with raises(TypeError, match="Stain name should be a string"):
+        create_image_schema("./tests/imgs", stain_name=1)
+    with raises(ValueError, match="Stain name should start with 'Intensity_', 'LabelMask_' or 'BinaryMask_'"):
+        create_image_schema("./tests/imgs", stain_name="Test")
 
 
 def test_create_image_schema():
     # Test basic usage
     image_file_paths = glob(str(Path("./tests/imgs/*.tif").resolve()))
-    reference_df = DataFrame({"Image_Intensity": image_file_paths})
+    reference_df = DataFrame({"Intensity_Stain": image_file_paths})
     test_df = create_image_schema("./tests/imgs", "*.tif")
     assert test_df.equals(reference_df)
     # Test Exclusion
@@ -43,7 +47,7 @@ def test_create_image_schema():
         for image_file_path in image_file_paths
         if "w5" not in image_file_path
     ]
-    reference_df = DataFrame({"Image_Intensity": image_file_paths})
+    reference_df = DataFrame({"Intensity_Stain": image_file_paths})
     test_df = create_image_schema("./tests/imgs", "*.tif", exclusion_strings=["w5"])
     assert test_df.equals(reference_df)
 
@@ -72,8 +76,20 @@ def test_create_image_schema():
             f"Metadata_{key}" if not key.startswith("Metadata_") else key: value
             for key, value in meta_dict.items()
         }
-        meta_dict["Image_Intensity"] = image
+        meta_dict["Intensity_Stain"] = image
         reference_dfs.append(DataFrame(meta_dict, index=[0]))
     reference_df = concat(reference_dfs).reset_index(drop=True)
     test_df = create_image_schema("./tests/imgs", "*.tif", meta_func=image_meta_func)
+    assert test_df.equals(reference_df)
+    
+    reference_df = DataFrame({"Intensity_Test": image_file_paths})
+    test_df = create_image_schema("./tests/imgs", "*.tif", stain_name="Intensity_Test")
+    assert test_df.equals(reference_df)
+    
+    reference_df = DataFrame({"LabelMask_Test": image_file_paths})
+    test_df = create_image_schema("./tests/imgs", "*.tif", stain_name="LabelMask_Test")
+    assert test_df.equals(reference_df)
+    
+    reference_df = DataFrame({"BinaryMask_Test": image_file_paths})
+    test_df = create_image_schema("./tests/imgs", "*.tif", stain_name="BinaryMask_Test")
     assert test_df.equals(reference_df)
