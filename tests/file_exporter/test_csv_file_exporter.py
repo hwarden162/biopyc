@@ -1,9 +1,12 @@
-from biopyc.file_exporter._csv_file_exporter import CSVFileExporter
-import dask.dataframe as dd
 import os
+from tempfile import TemporaryDirectory
+
+import dask.dataframe as dd
 from pandas import DataFrame
 from pytest import raises
-from tempfile import TemporaryDirectory
+
+from biopyc.file_exporter._csv_file_exporter import CSVFileExporter
+
 
 def test_csv_file_exporter_validation():
     pddf = DataFrame({"Column1": [1, 2, 3], "Column2": [4, 5, 6]})
@@ -17,5 +20,3 @@ def test_csv_file_exporter_validation():
         CSVFileExporter().export(df, 1)
     with raises(FileExistsError, match="Save file already exists"):
         CSVFileExporter().export(df, exising_dir)
-    
-    
