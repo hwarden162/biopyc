@@ -8,10 +8,10 @@ from pytest import raises
 from biopyc.file_exporter._csv_file_exporter import CSVFileExporter
 
 
-def test_csv_file_exporter_validation():
+def test_csv_file_exporter_validation(tmpdir):
     pddf = DataFrame({"Column1": [1, 2, 3], "Column2": [4, 5, 6]})
     df = dd.from_pandas(pddf)
-    temp_dir = TemporaryDirectory()
+    temp_dir = tmpdir.join("csv.csv")
     csv_file_path = os.path.join(str(temp_dir), "test_csv.csv")
     exising_dir = "./tests"
     with raises(TypeError, match="Supplied data is not a dask data frame"):
