@@ -1,5 +1,4 @@
 import os
-from tempfile import TemporaryDirectory
 
 import dask.dataframe as dd
 from pandas import DataFrame, read_csv
